@@ -1,4 +1,4 @@
-// Subido el 31/5/2012
+// Subido el 16/7/2013
 // aparentemente funciona bien en la subida de datos.
 // Los datos se pueden ver en https://xively.com/feeds/124735/
 
@@ -14,12 +14,12 @@
 // Otras ideas
 
 /**
- * Install next needed libraries into your libraries directory
- * Library HttpClient: https://github.com/amcewen/HttpClient/archive/master.zip or $ git clone git://github.com/amcewen/HttpClient.git HttpClient
- * Library Xively: https://github.com/xively/xively_arduino/archive/master.zip or $ git clone git://github.com/xively/xively-arduino.git XivelyArduino
- * Library Adafruit_BMP085: https://github.com/adafruit/Adafruit-BMP085-Library
- * Library WiFi Shield: https://github.com/arduino/wifishield/archive/master.zip
- */
+* Install next needed libraries into your libraries directory
+* Library HttpClient: https://github.com/amcewen/HttpClient/archive/master.zip or $ git clone git://github.com/amcewen/HttpClient.git HttpClient
+* Library Xively: https://github.com/xively/xively_arduino/archive/master.zip or $ git clone git://github.com/xively/xively-arduino.git XivelyArduino
+* Library Adafruit_BMP085: https://github.com/adafruit/Adafruit-BMP085-Library
+* Library WiFi Shield: https://github.com/arduino/wifishield/archive/master.zip
+*/
 
 // Link to Bricolabs feed https://xively.com/feeds/124735
 
@@ -32,9 +32,9 @@
 #include <Adafruit_BMP085.h>
 Adafruit_BMP085 bmp;
 
-char ssid[] = "bricolabs";  // network SSID (name)
-// char pass[] = "";    	// network password (use for WPA, or use as key for WEP)
-// int keyIndex = 0;    	// network key Index number (needed only for WEP)
+char ssid[] = "bricolabs"; // network SSID (name)
+// char pass[] = ""; // network password (use for WPA, or use as key for WEP)
+// int keyIndex = 0; // network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 
@@ -56,14 +56,16 @@ int sensorPin = 2;
 char Luminosidad[] = "Luminosity";
 char Temperatura[] = "Temperature";
 char Pressure[] = "Pressure";
+char Altitud[] = "Altitude";
 XivelyDatastream datastreams[] = {
   XivelyDatastream(Luminosidad, strlen(Luminosidad), DATASTREAM_FLOAT),
   XivelyDatastream(Temperatura, strlen(Temperatura), DATASTREAM_FLOAT),
   XivelyDatastream(Pressure, strlen(Pressure), DATASTREAM_FLOAT),
+  XivelyDatastream(Altitud, strlen(Altitud), DATASTREAM_FLOAT),  
 };
 
 // wrap the datastreams into a feed
-XivelyFeed feed(FEED_ID, datastreams, 3 /* number of datastreams */);
+XivelyFeed feed(FEED_ID, datastreams, 4 /* number of datastreams */);
 
 WiFiClient client;
 XivelyClient xivelyclient(client);
@@ -109,29 +111,34 @@ void setup() {
 void loop() {
 
   //int sensorValue = analogRead(sensorPin);
-  float lumValue   = map(analogRead(LUM_PIN) ,0,1023,0,100);
-  float tempValue  =bmp.readTemperature();
+  float lumValue = map(analogRead(LUM_PIN) ,0,1023,0,100);
+  float tempValue =bmp.readTemperature();
   float pressValue = bmp.readPressure()/100.0;
+  float altValue = bmp.readAltitude();
 
   datastreams[0].setFloat(lumValue);
   datastreams[1].setFloat(tempValue);
   datastreams[2].setFloat(pressValue);
+  datastreams[3].setFloat(altValue);
 
   Serial.print(millis());
 
-  Serial.print("	Read sensor value ");
+  Serial.print(" Read sensor value ");
   Serial.print(datastreams[0].getFloat());
 
-  Serial.print("  >>  ");
+  Serial.print(" >> ");
   Serial.print(datastreams[1].getFloat());
 
-  Serial.print("  >>  ");
+  Serial.print(" >> ");
   Serial.println(datastreams[2].getFloat());
+  
+  Serial.print(" >> ");
+  Serial.println(datastreams[3].getFloat());
   
   Serial.print("feed");
   Serial.println(feed);
 
-  Serial.print("Uploading it to Xively.   ");
+  Serial.print("Uploading it to Xively. ");
   int ret = xivelyclient.put(feed, xivelyKey);
   putes ++;
   if (ret < 0) {
@@ -139,20 +146,20 @@ void loop() {
   }
   Serial.print("xivelyclient.put returned ");
   Serial.print(ret);
-  Serial.print("   	errores = ");
+  Serial.print(" errores = ");
   Serial.print(puterrs);
   Serial.print(" / ");
   Serial.println(putes);
 
-  Serial.print ("tempValue  = ");
+  Serial.print ("tempValue = ");
   Serial.println ((5.0 * analogRead(TEMP_PIN) * 100.0)/1024.0);
   delay(1000);
 
-  Serial.print ("tempValue  = ");
+  Serial.print ("tempValue = ");
   Serial.println ((5.0 * analogRead(TEMP_PIN) * 100.0)/1024.0);
   delay(1000);
 
-  Serial.print ("tempValue  = ");
+  Serial.print ("tempValue = ");
   Serial.println ((5.0 * analogRead(TEMP_PIN) * 100.0)/1024.0);
   delay(1000);
 
@@ -168,13 +175,13 @@ void loop() {
   Serial.print(feed);
 
   Serial.print(millis());
-  Serial.print("	xivelyclient.get returned ");
+  Serial.print(" xivelyclient.get returned ");
   Serial.print(ret);
   getes ++;
   if (ret < 0) {
     geterrs ++;
   }
-  Serial.print("   	errores = ");
+  Serial.print(" errores = ");
   Serial.print(geterrs);
   Serial.print(" / ");
   Serial.println(getes);
@@ -188,19 +195,19 @@ void loop() {
     Serial.println(feed[1]);
     Serial.print("Pressure is: ");
     Serial.println(feed[2]);
+    Serial.print("Altitude aprox. is: ");
+    Serial.println(feed[3]);
     
     Serial.print(feed[0].getFloat());
-    Serial.print("  >>  ");
+    Serial.print(" >> ");
     Serial.print(feed[1].getFloat());
-    Serial.print("  >>  ");
+    Serial.print(" >> ");
     Serial.print(feed[2].getFloat());
+    Serial.print(" >> ");
+    Serial.print(feed[3].getFloat());
     Serial.println();
 
   }
   Serial.println();
   delay(15000UL);
 }
-
-
-
-
