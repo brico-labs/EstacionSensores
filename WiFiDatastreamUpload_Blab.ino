@@ -33,7 +33,10 @@
 Adafruit_BMP085 bmp;
 
 char ssid[] = "bricolabs"; // network SSID (name)
+                           // In an open network password and keyIndex are  not neccesary 
 // char pass[] = ""; // network password (use for WPA, or use as key for WEP)
+                     // WPA password must be in HEX. Its necessary to convert 13 leng ASCII to HEX
+                     // trere is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
 // int keyIndex = 0; // network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -97,7 +100,8 @@ void setup() {
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
-    status = WiFi.begin(ssid); // (ssid, keyIndex, pass);
+    status = WiFi.begin(ssid);                  // for an open WiFi network
+    // status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
     // wait 10 seconds for connection:
     delay(5000);
     if( status != WL_CONNECTED)
