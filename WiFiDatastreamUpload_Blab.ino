@@ -1,4 +1,4 @@
-// Subido el 1/8/2013
+// Subido el 16/7/2013
 // aparentemente funciona bien en la subida de datos.
 // Los datos se pueden ver en https://xively.com/feeds/124735/
 
@@ -30,15 +30,24 @@
 #include <Xively.h>
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
+#include <LiquidCrystal.h>
 Adafruit_BMP085 bmp;
+LiquidCrystal lcd(9, 8, 6, 5, 3, 2);
 
- char ssid[] = "bricolabs"; // network SSID (name)
+// char ssid[] = "bricolabs"; // network SSID (name)
                            // In an open network password and keyIndex are  not neccesary 
 // char pass[] = ""; // network password (use for WPA, or use as key for WEP)
                      // WEP password must be in HEX. Its necessary to convert 13 leng ASCII to HEX
                      // trere is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
 // int keyIndex = 0; // network key Index number (needed only for WEP)
 
+// Mis ajustes
+ char ssid[] = "bricolabs"; // network SSID (name)
+                           // In an open network password and keyIndex are  not neccesary 
+// char pass[] = ""; // network password (use for WPA, or use as key for WEP)
+                     // WEP password must be in HEX. Its necessary to convert 13 leng ASCII to HEX
+                     // trere is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
+// int keyIndex = 0; // network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 
@@ -91,12 +100,26 @@ void setup() {
   // put your setup code here, to run once:
 
   Serial.begin(9600);
+  lcd.begin(16,2);
+
+  
+  lcd.setCursor(0, 0);
+  lcd.print("Pruebas ");
+  lcd.setCursor(5, 1);
+  lcd.print("Pruebas");
+
   Serial.println("Starting multiple datastream upload to Xively...");
   Serial.println();
   // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
+    
+    lcd.clear();
+    lcd.print("Conectando con ");
+    lcd.setCursor(2, 1);
+    lcd.print(ssid);
+    
     status = WiFi.begin(ssid);                  // for an open WiFi network
     //status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
     // wait 10 seconds for connection:
@@ -105,6 +128,12 @@ void setup() {
       delay(5000);
   }
   Serial.println("Connected to wifi");
+
+  lcd.clear();
+  lcd.print("Conectada con");
+  lcd.setCursor(2, 1);
+  lcd.print(ssid);
+  
   printWifiStatus();
   bmp.begin();
 }
@@ -134,20 +163,40 @@ void loop() {
   Serial.println(datastreams[3].getFloat());
   
   Serial.print("          Uploading it to Xively...  ");
+  lcd.clear();
+  lcd.print("PUT to Xively");
+
   int ret = xivelyclient.put(feed, xivelyKey);
 
   Serial.print(" returned ");
   Serial.println(ret);
   Serial.println();
+  
+  lcd.setCursor(4, 1);
+  lcd.print("return ");
+  if (ret == 200) lcd.print("Ok");
+  else lcd.print(ret);
+
+  delay(15000);
 
   // -----------------
-  Serial.print("          Getting data from Xively...  ");
+  Serial.print("     Getting data from Xively...  ");
+
+  lcd.clear();
+  lcd.print("GET from Xively");
+
   ret = xivelyclient.get(feed, xivelyKey);
   Serial.print(" returned ");
   Serial.println(ret);
+  
+  lcd.setCursor(4, 1);
+  lcd.print("return ");
+  if (ret == 200) lcd.print("Ok");
+  else lcd.print(ret);
+
   if (ret = 200)
   {
-    Serial.print ("lum Value is: ");
+    Serial.print ("          lum Value is: ");
     Serial.print (feed[0].getFloat());
     Serial.print ("; Temperature is: ");
     Serial.print (feed[1].getFloat());
