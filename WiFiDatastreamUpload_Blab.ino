@@ -1,16 +1,11 @@
-// Subido el 16/7/2013
-// aparentemente funciona bien en la subida de datos.
+// Subido el 9/8/2013
 // Los datos se pueden ver en https://xively.com/feeds/124735/
 
-
-// Lo que no funciona
-// Actualmente el comando xivelyclient.get da resultados erroneos y no es detectado por Xilevy
 
 // Lo que falta o se puede añadir
 // Nuevos sensores
 // recoger un log de los datos en local en tarjeta SD
 // Filtrar los datos
-// Añadir una pantalla en local para ver que pasa
 // Otras ideas
 
 /**
