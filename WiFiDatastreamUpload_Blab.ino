@@ -24,6 +24,51 @@
 // Link to Bricolabs feed https://xively.com/feeds/124735
 
 
+
+
+
+/*******************Demo for MG-811 Gas Sensor Module V1.1*****************************
+/*******************Demo for MG-811 Gas Sensor Module V1.1*****************************
+/*******************Demo for MG-811 Gas Sensor Module V1.1*****************************
+Author:  Tiequan Shao: tiequan.shao@sandboxelectronics.com
+         Peng Wei:     peng.wei@sandboxelectronics.com
+         
+Lisence: Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)
+
+Note:    This piece of source code is supposed to be used as a demostration ONLY. More
+         sophisticated calibration is required for industrial field application. 
+         
+                                                    Sandbox Electronics    2012-05-31
+************************************************************************************/
+
+/************************Hardware Related Macros************************************/
+#define         MG_PIN                       (1)     //define which analog input channel you are going to use
+//#define         BOOL_PIN                     (2)
+#define         DC_GAIN                      (8.5)   //define the DC gain of amplifier
+
+
+/***********************Software Related Macros************************************/
+#define         READ_SAMPLE_INTERVAL         (50)    //define how many samples you are going to take in normal operation
+#define         READ_SAMPLE_TIMES            (5)     //define the time interval(in milisecond) between each samples in 
+                                                     //normal operation
+
+/**********************Application Related Macros**********************************/
+//These two values differ from sensor to sensor. user should derermine this value.
+#define         ZERO_POINT_VOLTAGE           (0.475) //define the output of the sensor in volts when the concentration of CO2 is 400PPM
+#define         REACTION_VOLTGAE             (0.020) //define the voltage drop of the sensor when move the sensor from air into 1000ppm CO2
+
+/*****************************Globals***********************************************/
+float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.602-3))};   
+                                                     //two points are taken from the curve. 
+                                                     //with these two points, a line is formed which is
+                                                     //"approximately equivalent" to the original curve.
+                                                     //data format:{ x, y, slope}; point1: (lg400, 0.324), point2: (lg4000, 0.280) 
+                                                     //slope = ( reaction voltage ) / (log400 ¨Clog1000) 
+
+
+
+
+
 #include <SPI.h>
 #include <WiFi.h>
 #include <HttpClient.h>
@@ -42,13 +87,16 @@ const short LUM_PIN = 0;
 
 
 //******  DEFINE VARIABLES  ******
- char ssid[] = "bricolabs"; // network SSID (name)
+char ssid[] = "bricolabs"; // network SSID (name)
                            // In an open network password and keyIndex are  not neccesary 
 // char pass[] = ""; // network password (use for WPA, or use as key for WEP)
                      // WEP password must be in HEX. Its necessary to convert 13 leng ASCII to HEX
                      // trere is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
 // int keyIndex = 0; // network key Index number (needed only for WEP)
 
+// char ssid[] = "sesta"; //  your network SSID (name) 
+// char pass[] = "31333935353030303030303030";    // your network password (use for WPA, or use as key for WEP)
+// int keyIndex = 0;            // your network key Index number (needed only for WEP)
 
 
 
@@ -59,9 +107,9 @@ int sensorPin = 2;
 unsigned long time, time2, intervalo;
 int medida;
 
-char* canales[4] = {"Luminosity", "Temperature", "Pressure", "Altitude"};
-char* shortCanales[4] = {"Lumin", "Temp", "Pres", "Altit"};
-char* unidades[4] = {" %", " -C", " hPa", " m"};
+char* canales[4] = {"Luminosity", "Temperature", "Pressure", "CO2"};
+char* shortCanales[4] = {"Lumin", "Temp", "Pres", "CO2"};
+char* unidades[4] = {" %", " -C", " hPa", " ppm"};
 
 
 XivelyDatastream datastreams[] = {
@@ -106,7 +154,7 @@ void setup()
       lcd.clear(); lcd.print("Conectando con "); lcd.setCursor(2, 1); lcd.print(ssid);
     
     status = WiFi.begin(ssid);                  // for an open WiFi network
-    //status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
+    // status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
     // wait 10 seconds for connection:
     delay(10000);
     if( status != WL_CONNECTED)
@@ -121,12 +169,18 @@ void setup()
     lcd.clear(); lcd.print("Conectada con"); lcd.setCursor(2, 1); lcd.print(ssid);
         delay (5000);
     medida = 1;
+    
+       Serial.print("MG-811 Demostration\n");                
+
 }
 
 
 
 void loop() {
   int ret;
+  int percentage;
+  float volts;
+ 
   
   if (millis() > time + intervalo * 1000)
   {
@@ -137,16 +191,36 @@ void loop() {
   {
     medida = 0;
     time = millis();
+    
+    
+   
+    volts = MGRead(MG_PIN);
+    percentage = MGGetPercentage(volts,CO2Curve);
+    
+    Serial.print( "SEN-00007: " );
+    Serial.print(volts); 
+    Serial.print( "V           " );
+    Serial.print("CO2: ");
+    if (percentage == -1) {
+        Serial.print( "<400" );
+    } else {
+        Serial.print(percentage);
+    } 
+    Serial.print( " ppm" );  
+    Serial.print("\n");
+
+
   
     float lumValue   = map(analogRead(LUM_PIN) ,0,1023,0,100);
     float tempValue  = bmp.readTemperature();
     float pressValue = bmp.readPressure() / 100.0;
     float altValue   = bmp.readAltitude();
+    float CO2Value   = percentage;
 
     datastreams[0].setFloat(lumValue);
     datastreams[1].setFloat(tempValue);
     datastreams[2].setFloat(pressValue);
-    datastreams[3].setFloat(altValue);
+    datastreams[3].setFloat(CO2Value);
 
     printValues();
 
@@ -171,6 +245,7 @@ void loop() {
   else if ((millis() - time)/1000 == intervalo/2)
   {
 
+    /*
     // -----------------
     Serial.print("     Getting data from Xively...  ");
 
@@ -193,7 +268,9 @@ void loop() {
     else Serial.println();
     
     Serial.println();
-        delay(1000);
+    delay(1000);
+    
+    */
 
   }
   
@@ -210,6 +287,35 @@ void loop() {
     
     lcd.setCursor(0, 0);
     lcd.print(shortCanales[i]); lcd.print (": "); lcd.print(datastreams[i].getFloat()); lcd.print(unidades[i]);
+    
+    
+    
+    
+    
+       volts = MGRead(MG_PIN);
+    percentage = MGGetPercentage(volts,CO2Curve);
+    
+    Serial.print( "SEN-00007: " );
+    Serial.print(volts * 1000); 
+    Serial.print( "mV           " );
+    Serial.print(volts * 1000 / 8.5); 
+    Serial.print( "mV           " );
+    Serial.print("CO2: ");
+    if (percentage == -1) {
+        Serial.print( "<400" );
+    } else {
+        Serial.print(percentage);
+    } 
+    Serial.print( " ppm" );  
+    Serial.print("\n");
+    
+    float CO2Value   = percentage;
+
+
+
+
+
+
 
 /*    
     switch (i)
@@ -264,3 +370,46 @@ void printValues(){
   Serial.println();
 }
   
+
+
+
+
+
+/*****************************  MGRead *********************************************
+Input:   mg_pin - analog channel
+Output:  output of SEN-000007
+Remarks: This function reads the output of SEN-000007
+************************************************************************************/ 
+float MGRead(int mg_pin)
+{
+    int i;
+    float v=0;
+
+    for (i=0;i<READ_SAMPLE_TIMES;i++) {
+        v += analogRead(mg_pin);
+        delay(READ_SAMPLE_INTERVAL);
+    }
+    v = (v/READ_SAMPLE_TIMES) *5/1024 ;
+    return v;  
+}
+
+/*****************************  MQGetPercentage **********************************
+Input:   volts   - SEN-000007 output measured in volts
+         pcurve  - pointer to the curve of the target gas
+Output:  ppm of the target gas
+Remarks: By using the slope and a point of the line. The x(logarithmic value of ppm) 
+         of the line could be derived if y(MG-811 output) is provided. As it is a 
+         logarithmic coordinate, power of 10 is used to convert the result to non-logarithmic 
+         value.
+************************************************************************************/ 
+int  MGGetPercentage(float volts, float *pcurve)
+{
+   if ((volts/DC_GAIN )>=ZERO_POINT_VOLTAGE) {
+      return -1;
+   } else { 
+       int ppm = (int) pow(10, ((volts/DC_GAIN)-pcurve[1])/pcurve[2]+pcurve[0]);
+       Serial.print (ppm);
+       Serial.print("  >>  ");
+       return ppm;
+   }
+}
