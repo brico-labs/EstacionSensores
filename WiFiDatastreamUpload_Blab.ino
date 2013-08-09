@@ -178,7 +178,7 @@ void setup()
 
 void loop() {
   int ret;
-  int percentage;
+  long percentage;
   float volts;
  
   
@@ -402,12 +402,12 @@ Remarks: By using the slope and a point of the line. The x(logarithmic value of 
          logarithmic coordinate, power of 10 is used to convert the result to non-logarithmic 
          value.
 ************************************************************************************/ 
-int  MGGetPercentage(float volts, float *pcurve)
+long  MGGetPercentage(float volts, float *pcurve)
 {
    if ((volts/DC_GAIN )>=ZERO_POINT_VOLTAGE) {
       return -1;
    } else { 
-       int ppm = (int) pow(10, ((volts/DC_GAIN)-pcurve[1])/pcurve[2]+pcurve[0]);
+       long ppm = pow(10, ((volts/DC_GAIN)-pcurve[1])/pcurve[2]+pcurve[0]);
        Serial.print (ppm);
        Serial.print("  >>  ");
        return ppm;
