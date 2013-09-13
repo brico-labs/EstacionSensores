@@ -1,4 +1,4 @@
-// Subido el 9/8/2013
+// Subido el 13/9/2013
 // Los datos se pueden ver en https://xively.com/feeds/124735/
 
 
@@ -48,8 +48,9 @@ Note:    This piece of source code is supposed to be used as a demostration ONLY
 
 /**********************Application Related Macros**********************************/
 //These two values differ from sensor to sensor. user should derermine this value.
-#define         ZERO_POINT_VOLTAGE           (0.475) //define the output of the sensor in volts when the concentration of CO2 is 400PPM
-#define         REACTION_VOLTGAE             (0.020) //define the voltage drop of the sensor when move the sensor from air into 1000ppm CO2
+//#define         ZERO_POINT_VOLTAGE           (0.475) //define the output of the sensor in volts when the concentration of CO2 is 400PPM. Ahora 0.540
+#define         ZERO_POINT_VOLTAGE           (0.565)
+#define         REACTION_VOLTGAE             (0.028) //define the voltage drop of the sensor when move the sensor from air into 1000ppm CO2. Ahora 0.020
 
 /*****************************Globals***********************************************/
 float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.602-3))};   
@@ -81,12 +82,14 @@ const short LUM_PIN = 0;
 
 
 //******  DEFINE VARIABLES  ******
+//char ssid[] = "CO2Client";
 char ssid[] = "bricolabs"; // network SSID (name)
                            // In an open network password and keyIndex are  not neccesary 
-// char pass[] = ""; // network password (use for WPA, or use as key for WEP)
+//char pass[] = "3734414230334235";
+char pass[] = ""; // network password (use for WPA, or use as key for WEP)
                      // WEP password must be in HEX. Its necessary to convert 13 leng ASCII to HEX
                      // trere is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
-// int keyIndex = 0; // network key Index number (needed only for WEP)
+//int keyIndex = 0; // network key Index number (needed only for WEP)
 
 // char ssid[] = "sesta"; //  your network SSID (name) 
 // char pass[] = "31333935353030303030303030";    // your network password (use for WPA, or use as key for WEP)
@@ -148,7 +151,7 @@ void setup()
       lcd.clear(); lcd.print("Conectando con "); lcd.setCursor(2, 1); lcd.print(ssid);
     
     status = WiFi.begin(ssid);                  // for an open WiFi network
-    // status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
+    //status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
     // wait 10 seconds for connection:
     delay(10000);
     if( status != WL_CONNECTED)
@@ -184,9 +187,7 @@ void loop() {
   if (medida != 0)
   {
     medida = 0;
-    time = millis();
-    
-    
+    time = millis(); 
    
     volts = MGRead(MG_PIN);
     percentage = MGGetPercentage(volts,CO2Curve);
@@ -328,8 +329,6 @@ void loop() {
   }
  
 }
-
-
 
 
 
