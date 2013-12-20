@@ -150,8 +150,9 @@ void setup()
     Serial.println(ssid);
       lcd.clear(); lcd.print("Conectando con "); lcd.setCursor(2, 1); lcd.print(ssid);
     
-    status = WiFi.begin(ssid);                  // for an open WiFi network
-    //status = WiFi.begin(ssid, keyIndex, pass); // for an closed WiFi network
+    status = WiFi.begin(ssid);                        // for an open WiFi network
+    //status = WiFi.begin(ssid, pass);                // for an closed WPA WiFi network
+    //status = WiFi.begin(ssid, keyIndex, pass);      // for an closed WEP WiFi network
     // wait 10 seconds for connection:
     delay(10000);
     if( status != WL_CONNECTED)
