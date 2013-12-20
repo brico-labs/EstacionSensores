@@ -228,8 +228,10 @@ void loop() {
     ret = xivelyclient.put(feed, xivelyKey);
 
     Serial.print(" returned ");
-    Serial.println(ret);
+    Serial.print(ret);
+    if (ret == 200) Serial.println("  Ok ");
     Serial.println();
+
   
     lcd.print(" ... ");
     if (ret == 200) lcd.print("Ok");
