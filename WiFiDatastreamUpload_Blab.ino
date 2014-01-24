@@ -78,7 +78,16 @@ float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.6
 #define xivelyKey "seiuHmN24Nwtq8iOuVIUXGuF2oOSAKxEZHd5UzNZcjJOZz0g" // Bricolabs Xively/Cosm API key
 #define FEED_ID 124735 // Bricolabs Xively/Cosm feed ID
 
-const short LUM_PIN = 0;
+const short LUM_PIN = 10;
+
+const CO_PIN =    A11;     // Entrada analogica conectada al sensor de CO
+
+const DTH11_PIN =  21;     // Entrada digital de conexión con DHT11
+
+                           // Patas de control para el sensor de polvo
+                           // SHARP GP2Y1010AU0F
+const DUST_PIN_O =  20;    // Salida digital del sensor de polvo
+const DUST_PIN_I = A13;    // Entrada digital del sensor de polvo
 
 
 //******  DEFINE VARIABLES  ******
