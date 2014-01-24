@@ -125,7 +125,13 @@ XivelyFeed feed(FEED_ID, datastreams, 4 /* number of datastreams */);
 //******  CREA INSTANCIAS DE CLASES  ******
 
 Adafruit_BMP085 bmp;
-LiquidCrystal lcd(9, 8, 6, 5, 3, 2);
+
+// LiquidCrystal lcd(9, 8, 6, 5, 3, 2);      //Esta es la llamada antigua a la instancia LCD
+
+                                          //Esta es la llamada con las patas reordenadas 
+LiquidCrystal lcd(3, 5, 10, 11, 12, 13);  //para el montaje en el Mega (24/01/14)
+
+
 WiFiClient client;
 XivelyClient xivelyclient(client);
 
