@@ -1,7 +1,3 @@
-// Subido el 13/9/2013
-// Los datos se pueden ver en https://xively.com/feeds/124735/
-
-
 // Lo que falta o se puede añadir
 // Nuevos sensores
 // recoger un log de los datos en local en tarjeta SD
@@ -21,8 +17,6 @@
 
 
 
-/*******************Demo for MG-811 Gas Sensor Module V1.1*****************************
-/*******************Demo for MG-811 Gas Sensor Module V1.1*****************************
 /*******************Demo for MG-811 Gas Sensor Module V1.1*****************************
 Author:  Tiequan Shao: tiequan.shao@sandboxelectronics.com
          Peng Wei:     peng.wei@sandboxelectronics.com
@@ -60,10 +54,6 @@ float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.6
                                                      //data format:{ x, y, slope}; point1: (lg400, 0.324), point2: (lg4000, 0.280) 
                                                      //slope = ( reaction voltage ) / (log400 ¨Clog1000) 
 
-
-
-
-
 #include <SPI.h>
 #include <WiFi.h>
 #include <HttpClient.h>
@@ -91,19 +81,12 @@ const DUST_PIN_I = A13;    // Entrada digital del sensor de polvo
 
 
 //******  DEFINE VARIABLES  ******
-//char ssid[] = "CO2Client";
 char ssid[] = "bricolabs"; // network SSID (name)
-                           // In an open network password and keyIndex are  not neccesary 
-//char pass[] = "3734414230334235";
-char pass[] = ""; // network password (use for WPA, or use as key for WEP)
-                     // WEP password must be in HEX. Its necessary to convert 13 leng ASCII to HEX
-                     // trere is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
-//int keyIndex = 0; // network key Index number (needed only for WEP)
-
-// char ssid[] = "sesta"; //  your network SSID (name) 
-// char pass[] = "31333935353030303030303030";    // your network password (use for WPA, or use as key for WEP)
-// int keyIndex = 0;            // your network key Index number (needed only for WEP)
-
+                           // In an open network password and keyIndex are not neccesary 
+char pass[] = "";          // network password (use for WPA, or use as key for WEP)
+                           // WEP password must be in HEX. It's necessary convert 13 leng ASCII to HEX
+                           // there is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
+//int keyIndex = 0;        // network key Index number (needed only for WEP)
 
 
 int status = WL_IDLE_STATUS;
@@ -129,8 +112,6 @@ XivelyDatastream datastreams[] = {
 XivelyFeed feed(FEED_ID, datastreams, 4 /* number of datastreams */);
 
 
-
-
 //******  CREA INSTANCIAS DE CLASES  ******
 
 Adafruit_BMP085 bmp;
@@ -140,11 +121,8 @@ Adafruit_BMP085 bmp;
                                           //Esta es la llamada con las patas reordenadas 
 LiquidCrystal lcd(3, 5, 10, 11, 12, 13);  //para el montaje en el Mega (24/01/14)
 
-
 WiFiClient client;
 XivelyClient xivelyclient(client);
-
-
 
 void setup() 
 {
@@ -157,8 +135,7 @@ void setup()
 
       Serial.println("Starting multiple datastream upload to Xively...");
       Serial.println();
-      
-      
+ 
   // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
@@ -187,14 +164,11 @@ void setup()
 
 }
 
-
-
 void loop() {
   int ret;
   long percentage;
   float volts;
- 
-  
+
   if (millis() > time + intervalo * 1000)
   {
     medida = 1;
@@ -301,10 +275,6 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print(shortCanales[i]); lcd.print (": "); lcd.print(datastreams[i].getFloat()); lcd.print(unidades[i]);
     
-    
-    
-    
-    
        volts = MGRead(MG_PIN);
     percentage = MGGetPercentage(volts,CO2Curve);
     
@@ -324,12 +294,6 @@ void loop() {
     
     float CO2Value   = percentage;
 
-
-
-
-
-
-
 /*    
     switch (i)
     {
@@ -347,9 +311,6 @@ void loop() {
   }
  
 }
-
-
-
 
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
@@ -381,10 +342,6 @@ void printValues(){
   Serial.println();
 }
   
-
-
-
-
 
 /*****************************  MGRead *********************************************
 Input:   mg_pin - analog channel
