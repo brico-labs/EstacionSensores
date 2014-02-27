@@ -83,7 +83,7 @@ const DUST_PIN_I = A13;    // Entrada digital del sensor de polvo
 //******  DEFINE VARIABLES  ******
 char ssid[] = "bricolabs"; // network SSID (name)
                            // In an open network password and keyIndex are not neccesary 
-char pass[] = "";          // network password (use for WPA, or use as key for WEP)
+char pass[] = "s1ncables";          // network password (use for WPA, or use as key for WEP)
                            // WEP password must be in HEX. It's necessary convert 13 leng ASCII to HEX
                            // there is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
 //int keyIndex = 0;        // network key Index number (needed only for WEP)
