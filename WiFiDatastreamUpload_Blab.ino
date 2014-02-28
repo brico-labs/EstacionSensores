@@ -81,7 +81,7 @@ const DUST_PIN_I = A13;    // Entrada digital del sensor de polvo
 
 
 //******  DEFINE VARIABLES  ******
-char ssid[] = "bricolabs"; // network SSID (name)
+char ssid[] = "Laboratorio Domus"; // network SSID (name)
                            // In an open network password and keyIndex are not neccesary 
 char pass[] = "s1ncables";          // network password (use for WPA, or use as key for WEP)
                            // WEP password must be in HEX. It's necessary convert 13 leng ASCII to HEX
@@ -142,9 +142,9 @@ void setup()
     Serial.println(ssid);
       lcd.clear(); lcd.print("Conectando con "); lcd.setCursor(2, 1); lcd.print(ssid);
     
-    status = WiFi.begin(ssid);                        // for an open WiFi network
-    //status = WiFi.begin(ssid, pass);                // for an closed WPA WiFi network
-    //status = WiFi.begin(ssid, keyIndex, pass);      // for an closed WEP WiFi network
+    // status = WiFi.begin(ssid);                        // for an open WiFi network
+    status = WiFi.begin(ssid, pass);                // for an closed WPA WiFi network
+    // status = WiFi.begin(ssid, keyIndex, pass);      // for an closed WEP WiFi network
     // wait 10 seconds for connection:
     delay(10000);
     if( status != WL_CONNECTED)
