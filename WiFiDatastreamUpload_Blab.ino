@@ -70,14 +70,14 @@ float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.6
 
 const short LUM_PIN = 10;
 
-const CO_PIN =    A11;     // Entrada analogica conectada al sensor de CO
+const int CO_PIN =    A11;     // Entrada analogica conectada al sensor de CO
 
-const DTH11_PIN =  21;     // Entrada digital de conexión con DHT11
+const int DTH11_PIN =  21;     // Entrada digital de conexión con DHT11
 
                            // Patas de control para el sensor de polvo
                            // SHARP GP2Y1010AU0F
-const DUST_PIN_O =  20;    // Salida digital del sensor de polvo
-const DUST_PIN_I = A13;    // Entrada digital del sensor de polvo
+const int DUST_PIN_O =  20;    // Salida digital del sensor de polvo
+const int DUST_PIN_I = A13;    // Entrada digital del sensor de polvo
 
 
 //******  DEFINE VARIABLES  ******
@@ -119,7 +119,7 @@ Adafruit_BMP085 bmp;
 // LiquidCrystal lcd(9, 8, 6, 5, 3, 2);      //Esta es la llamada antigua a la instancia LCD
 
                                           //Esta es la llamada con las patas reordenadas 
-LiquidCrystal lcd(3, 5, 10, 11, 12, 13);  //para el montaje en el Mega (24/01/14)
+LiquidCrystal lcd(3, 5, 9, 11, 12, 13);  //para el montaje en el Mega (24/01/14)
 
 WiFiClient client;
 XivelyClient xivelyclient(client);
