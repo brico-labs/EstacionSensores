@@ -61,6 +61,7 @@ float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.6
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
 #include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 
 //******  DEFINE CONSTANTES  ******
 
@@ -126,6 +127,7 @@ XivelyClient xivelyclient(client);
 
 void setup() 
 {
+
   Serial.begin(9600);
   bmp.begin();
   lcd.begin(16,2);
@@ -140,7 +142,7 @@ void setup()
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
-      lcd.clear(); lcd.print("Conectando con "); lcd.setCursor(2, 1); lcd.print(ssid);
+      lcd.clear();  lcd.print("Conectando con ");  lcd.setCursor(2, 1);  lcd.print(ssid);
     
     // status = WiFi.begin(ssid);                        // for an open WiFi network
     status = WiFi.begin(ssid, pass);                // for an closed WPA WiFi network
