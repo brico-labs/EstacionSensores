@@ -120,7 +120,10 @@ Adafruit_BMP085 bmp;
 // LiquidCrystal lcd(9, 8, 6, 5, 3, 2);      //Esta es la llamada antigua a la instancia LCD
 
                                           //Esta es la llamada con las patas reordenadas 
-LiquidCrystal lcd(3, 5, 9, 11, 12, 13);  //para el montaje en el Mega (24/01/14)
+//LiquidCrystal lcd(3, 5, 9, 11, 12, 13);  //para el montaje en el Mega (24/01/14)
+
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+
 
 WiFiClient client;
 XivelyClient xivelyclient(client);
@@ -130,7 +133,8 @@ void setup()
 
   Serial.begin(9600);
   bmp.begin();
-  lcd.begin(16,2);
+//  lcd.begin(16,2);
+  lcd.begin(20,4);
 
   time = time2 = millis();
   intervalo = 60; // Intervalo entre dos lecturas y envio de datos en segundos
@@ -158,7 +162,9 @@ void setup()
   Serial.println("Connected to wifi");
   Serial.println("---------------");
 
-    lcd.clear(); lcd.print("Conectada con"); lcd.setCursor(2, 1); lcd.print(ssid);
+    lcd.setCursor(9,2);
+//    lcd.clear(); lcd.print("Conectada con"); lcd.setCursor(2, 1); lcd.print(ssid);
+    lcd.print("Conectada");
         delay (5000);
     medida = 1;
     
@@ -271,11 +277,15 @@ void loop() {
     int i = (pendiente / 5) % 4;    
     lcd.clear();
 
-    lcd.setCursor(0, 1);
+    lcd.setCursor(9, 4);
     lcd.print("faltan "); lcd.print(pendiente); lcd.print(" seg"); 
     
     lcd.setCursor(0, 0);
     lcd.print(shortCanales[i]); lcd.print (": "); lcd.print(datastreams[i].getFloat()); lcd.print(unidades[i]);
+    lcd.setCursor(0, 1);
+    lcd.print(shortCanales[(i+1)%4]); lcd.print (": "); lcd.print(datastreams[(i+1)%4].getFloat()); lcd.print(unidades[(i+1)%4]);
+    lcd.setCursor(0, 2);
+    lcd.print(shortCanales[(i+2)%4]); lcd.print (": "); lcd.print(datastreams[(i+2)%4].getFloat()); lcd.print(unidades[(i+2)%4]);
     
        volts = MGRead(MG_PIN);
     percentage = MGGetPercentage(volts,CO2Curve);
