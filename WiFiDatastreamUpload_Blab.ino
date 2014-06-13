@@ -176,6 +176,20 @@ void loop() {
   int ret;
   long percentage;
   float volts;
+  
+  volts = MGRead(MG_PIN);
+  percentage = MGGetPercentage(volts,CO2Curve);
+  float lumValue   = map(analogRead(LUM_PIN) ,0,1023,0,100);
+  float tempValue  = bmp.readTemperature();
+  float pressValue = bmp.readPressure() / 100.0;
+  float altValue   = bmp.readAltitude();
+  float CO2Value   = percentage;
+
+  datastreams[0].setFloat(lumValue);
+  datastreams[1].setFloat(tempValue);
+  datastreams[2].setFloat(pressValue);
+  datastreams[3].setFloat(CO2Value);
+
 
   if (millis() > time + intervalo * 1000)
   {
@@ -187,8 +201,6 @@ void loop() {
     medida = 0;
     time = millis(); 
    
-    volts = MGRead(MG_PIN);
-    percentage = MGGetPercentage(volts,CO2Curve);
     
     Serial.print( "SEN-00007: " );
     Serial.print(volts); 
@@ -204,16 +216,7 @@ void loop() {
 
 
   
-    float lumValue   = map(analogRead(LUM_PIN) ,0,1023,0,100);
-    float tempValue  = bmp.readTemperature();
-    float pressValue = bmp.readPressure() / 100.0;
-    float altValue   = bmp.readAltitude();
-    float CO2Value   = percentage;
 
-    datastreams[0].setFloat(lumValue);
-    datastreams[1].setFloat(tempValue);
-    datastreams[2].setFloat(pressValue);
-    datastreams[3].setFloat(CO2Value);
 
     printValues();
 
