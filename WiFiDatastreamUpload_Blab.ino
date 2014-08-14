@@ -1,3 +1,5 @@
+#include <dht11.h>
+
 // Lo que falta o se puede añadir
 // Nuevos sensores
 // recoger un log de los datos en local en tarjeta SD
@@ -63,6 +65,13 @@ float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.6
 #include <LiquidCrystal.h>
 #include <LiquidCrystal_I2C.h>
 
+// Configuracion del sensor de temperatura y humedad DHT11
+#include <DHT.h>
+#define DHTPIN 30         // Pin digital en el que se conecta el sensor
+#define DHTTYPE DHT11     // Tipo de sensor
+DHT dht(DHTPIN, DHTTYPE);  // Crea una instancia tipo dht para manejar el sensor
+
+
 //******  DEFINE CONSTANTES  ******
 
 // Xively key to let you upload data
@@ -97,9 +106,9 @@ int sensorPin = 2;
 unsigned long time, time2, intervalo;
 int medida;
 
-char* canales[4] = {"Luminosity", "Temperature", "Pressure", "CO2"};
-char* shortCanales[4] = {"Lumin", "Temp", "Pres", "CO2"};
-char* unidades[4] = {" %", " -C", " hPa", " ppm"};
+char* canales[6]      = {"Luminosity", "Temperature", "Pressure", "CO2", "Temp_DHT", "HR_DHT"};
+char* shortCanales[6] = {"Lumin", "Temp", "Pres", "CO2", "T_DHT", "HR"};
+char* unidades[6]     = {" %", " -C", " hPa", " ppm", "-C", "%"};
 
 
 XivelyDatastream datastreams[] = {
@@ -107,10 +116,12 @@ XivelyDatastream datastreams[] = {
   XivelyDatastream(canales[1], strlen(canales[1]), DATASTREAM_FLOAT),
   XivelyDatastream(canales[2], strlen(canales[2]), DATASTREAM_FLOAT),
   XivelyDatastream(canales[3], strlen(canales[3]), DATASTREAM_FLOAT),  
+  XivelyDatastream(canales[4], strlen(canales[4]), DATASTREAM_FLOAT),  
+  XivelyDatastream(canales[5], strlen(canales[5]), DATASTREAM_FLOAT),  
 };
 
 // wrap the datastreams into a feed
-XivelyFeed feed(FEED_ID, datastreams, 4 /* number of datastreams */);
+XivelyFeed feed(FEED_ID, datastreams, 6 /* number of datastreams */);
 
 
 //******  CREA INSTANCIAS DE CLASES  ******
@@ -135,6 +146,8 @@ void setup()
   bmp.begin();
 //  lcd.begin(16,2);
   lcd.begin(20,4);
+  
+  dht.begin();               // inicializa el sensor DHT
 
   time = time2 = millis();
   intervalo = 60; // Intervalo entre dos lecturas y envio de datos en segundos
@@ -173,22 +186,47 @@ void setup()
 }
 
 void loop() {
-  int ret;
-  long percentage;
-  float volts;
   
-  volts = MGRead(MG_PIN);
+  // Lee los valores del sensor DHT
+  float temperatDHR = dht.readTemperature();
+  float humedadDHR  = dht.readHumidity();
+  if (isnan(temperatDHR) || isnan(humedadDHR))
+  {
+    Serial.println ("error en la lectura del sensor DHT");
+  }
+  else
+  {
+    Serial.print ("Temperatura DHR = ");
+    Serial.print (temperatDHR);
+    Serial.print ("/t Humedad DHR = ");
+    Serial.print (humedadDHR);
+    Serial.print (" %");
+    Serial.println ();
+    Serial.println ();
+  }
+  
+  // Lee los valores del sensor de CO2
+  int ret;
+  long  percentage;
+  float volts = MGRead(MG_PIN);  
   percentage = MGGetPercentage(volts,CO2Curve);
+  float CO2Value   = percentage;
+  
+  // Lee el medidor de luminosidad LDR
   float lumValue   = map(analogRead(LUM_PIN) ,0,1023,0,100);
+
+  // Lee los valores de presion y temperatura del BMP
   float tempValue  = bmp.readTemperature();
   float pressValue = bmp.readPressure() / 100.0;
   float altValue   = bmp.readAltitude();
-  float CO2Value   = percentage;
+  
 
   datastreams[0].setFloat(lumValue);
   datastreams[1].setFloat(tempValue);
   datastreams[2].setFloat(pressValue);
   datastreams[3].setFloat(CO2Value);
+  datastreams[4].setFloat(temperatDHR);
+  datastreams[5].setFloat(humedadDHR);
 
 
   if (millis() > time + intervalo * 1000)
@@ -322,7 +360,7 @@ void loop() {
       lcd.print("Alt: "); lcd.print(datastreams[i].getFloat()); lcd.print(" m"); break;
     }
 
-*/    
+*/    delay (1000);
   }
  
 }
