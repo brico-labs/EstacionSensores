@@ -1,3 +1,5 @@
+// Version 2014-08-29
+
 #include <dht11.h>
 
 // Lo que falta o se puede añadir
@@ -44,17 +46,23 @@ Note:    This piece of source code is supposed to be used as a demostration ONLY
 
 /**********************Application Related Macros**********************************/
 //These two values differ from sensor to sensor. user should derermine this value.
-//#define         ZERO_POINT_VOLTAGE           (0.475) //define the output of the sensor in volts when the concentration of CO2 is 400PPM. Ahora 0.540
-#define         ZERO_POINT_VOLTAGE           (0.565)
-#define         REACTION_VOLTGAE             (0.028) //define the voltage drop of the sensor when move the sensor from air into 1000ppm CO2. Ahora 0.020
+//#define         ZERO_POINT_VOLTAGE           (0.475) //define the output of the sensor in volts when the concentration of CO2 is 400PPM. Ahora 0.492
+
+// Calibrado de acuerdo con http://www.veetech.org.uk/Prototype_CO2_Monitor.htm
+
+#define         ZERO_POINT_VOLTAGE           (0.550) // Salida del sensor en aire libre: 400 ppm
+#define         TOTAL_POINT_VOLTAGE          (0.315) // Salida del sensor en aire saturado respirando: 40.000 ppm
+float           REACTION_VOLTGAE     = ZERO_POINT_VOLTAGE - TOTAL_POINT_VOLTAGE;
 
 /*****************************Globals***********************************************/
-float           CO2Curve[3]  =  {2.602,ZERO_POINT_VOLTAGE,(REACTION_VOLTGAE/(2.602-3))};   
+float           CO2Curve[3]  =  {2.602060, ZERO_POINT_VOLTAGE, (REACTION_VOLTGAE/(-2.0))};   
                                                      //two points are taken from the curve. 
                                                      //with these two points, a line is formed which is
                                                      //"approximately equivalent" to the original curve.
-                                                     //data format:{ x, y, slope}; point1: (lg400, 0.324), point2: (lg4000, 0.280) 
-                                                     //slope = ( reaction voltage ) / (log400 ¨Clog1000) 
+                                                     // data format:{ x, y, slope}; 
+                                                     // point1: (lg400   = 2,602060), 
+                                                     // point2: (lg40000 = 4.602060) 
+                                                     // slope = ( reaction voltage ) / (log400 - log40000) 
 
 #include <SPI.h>
 #include <WiFi.h>
@@ -106,9 +114,9 @@ int sensorPin = 2;
 unsigned long time, time2, intervalo;
 int medida;
 
-char* canales[6]      = {"Luminosity", "Temperature", "Pressure", "CO2", "Temp_DHT", "HR_DHT"};
-char* shortCanales[6] = {"Lumin", "Temp", "Pres", "CO2", "T_DHT", "HR"};
-char* unidades[6]     = {" %", " -C", " hPa", " ppm", "-C", "%"};
+char* canales[7]      = {"Luminosity", "Temperature", "Pressure", "CO2", "DHT_Temp", "DHT_HR", "V_CO2"};
+char* shortCanales[7] = {"Lumin", "Temp", "Pres", "CO2", "T_DHT", "HR", "V_CO2"};
+char* unidades[7]     = {" %", " -C", " hPa", " ppm", "-C", "%", "mV"};
 
 
 XivelyDatastream datastreams[] = {
@@ -118,10 +126,11 @@ XivelyDatastream datastreams[] = {
   XivelyDatastream(canales[3], strlen(canales[3]), DATASTREAM_FLOAT),  
   XivelyDatastream(canales[4], strlen(canales[4]), DATASTREAM_FLOAT),  
   XivelyDatastream(canales[5], strlen(canales[5]), DATASTREAM_FLOAT),  
+  XivelyDatastream(canales[6], strlen(canales[6]), DATASTREAM_FLOAT),  
 };
 
 // wrap the datastreams into a feed
-XivelyFeed feed(FEED_ID, datastreams, 6 /* number of datastreams */);
+XivelyFeed feed(FEED_ID, datastreams, 7 /* number of datastreams */);
 
 
 //******  CREA INSTANCIAS DE CLASES  ******
@@ -227,6 +236,7 @@ void loop() {
   datastreams[3].setFloat(CO2Value);
   datastreams[4].setFloat(temperatDHR);
   datastreams[5].setFloat(humedadDHR);
+  datastreams[6].setFloat(volts);
 
 
   if (millis() > time + intervalo * 1000)
@@ -360,7 +370,7 @@ void loop() {
       lcd.print("Alt: "); lcd.print(datastreams[i].getFloat()); lcd.print(" m"); break;
     }
 
-*/    delay (1000);
+*/    delay (2000);
   }
  
 }
@@ -425,9 +435,16 @@ Remarks: By using the slope and a point of the line. The x(logarithmic value of 
 ************************************************************************************/ 
 long  MGGetPercentage(float volts, float *pcurve)
 {
-   if ((volts/DC_GAIN )>=ZERO_POINT_VOLTAGE) {
+   if ((volts/DC_GAIN ) >= ZERO_POINT_VOLTAGE) 
+   {
       return -1;
-   } else { 
+   }
+   else if ((volts/DC_GAIN ) <  TOTAL_POINT_VOLTAGE) 
+   {
+      return 0;
+   }
+
+   else { 
        long ppm = pow(10, ((volts/DC_GAIN)-pcurve[1])/pcurve[2]+pcurve[0]);
        Serial.print (ppm);
        Serial.print("  >>  ");
