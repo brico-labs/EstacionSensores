@@ -171,23 +171,6 @@ LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 #define xivelyKey "seiuHmN24Nwtq8iOuVIUXGuF2oOSAKxEZHd5UzNZcjJOZz0g" // Bricolabs Xively/Cosm API key
 #define FEED_ID 124735 // Bricolabs Xively/Cosm feed ID
 
-/*
-char* canales[7]      = {"Luminosity", "Temperature", "Pressure", "CO2", "DHT_Temp", "DHT_HR", "V_CO2"};
-char* shortCanales[7] = {"Lumin", "Temp", "Pres", "CO2", "T_DHT", "HR", "V_CO2"};
-char* unidades[7]     = {" %", " -C", " hPa", " ppm", "-C", "%", "mV"};
-
-XivelyDatastream datastreams[] = {
-  XivelyDatastream(canales[0], strlen(canales[0]), DATASTREAM_FLOAT),
-  XivelyDatastream(canales[1], strlen(canales[1]), DATASTREAM_FLOAT),
-  XivelyDatastream(canales[2], strlen(canales[2]), DATASTREAM_FLOAT),
-  XivelyDatastream(canales[3], strlen(canales[3]), DATASTREAM_FLOAT),  
-  XivelyDatastream(canales[4], strlen(canales[4]), DATASTREAM_FLOAT),  
-  XivelyDatastream(canales[5], strlen(canales[5]), DATASTREAM_FLOAT),  
-  XivelyDatastream(canales[6], strlen(canales[6]), DATASTREAM_FLOAT),  
-};
-*/
-
-
 
 char* canales[8]      = {"Luminosidad", "Temperatura", "Presion", "CO2", "CO", "DHT_HR", "Part_Susp", "Notas"};
 char* shortCanales[8] = {"Lumin", "Temp ", "Pres ", "CO2  ", "CO   ", "HR   ", "Psusp", "Notas"};
@@ -223,22 +206,12 @@ XivelyClient xivelyclient(client);
 
 
 // Configuracion de la conexion Wifi
-/*
 char ssid[] = "Laboratorio Domus"; // network SSID (name)
                            // In an open network password and keyIndex are not neccesary 
 char pass[] = "s1ncables";          // network password (use for WPA, or use as key for WEP)
                            // WEP password must be in HEX. It's necessary convert 13 leng ASCII to HEX
                            // there is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
 //int keyIndex = 0;        // network key Index number (needed only for WEP)
-*/
-
-char ssid[] = "sesta"; // network SSID (name)
-                           // In an open network password and keyIndex are not neccesary 
-char pass[] = "31333935353030303030303030";          // network password (use for WPA, or use as key for WEP)
-                           // WEP password must be in HEX. It's necessary convert 13 leng ASCII to HEX
-                           // there is a conversor at: http://www.seguridadwireless.net/php/conversor-universal-wireless.php
-int keyIndex = 1;          // network key Index number (needed only for WEP)
-
 int status = WL_IDLE_STATUS;
 
 
